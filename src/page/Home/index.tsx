@@ -1,7 +1,9 @@
-export default function Home() {
-  return (
-    <div>
-        我是首页home页面
-    </div>
-  )
-}
+import { Button } from 'antd';
+
+const Home = () => (
+  <div className="App">
+    <Button type="primary">Button</Button>
+  </div>
+);
+
+export default Home;
