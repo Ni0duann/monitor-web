@@ -6,6 +6,13 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": ".",               //!!!配置的当前目录baseUrl
+    "paths": {                   //配置path用@自动配置到src的子目录
+      "@/*": [
+        "src/*"
+      ]
+    },
+
 
     /* Bundler mode */
     "moduleResolution": "bundler",
