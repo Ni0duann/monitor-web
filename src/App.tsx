@@ -5,8 +5,8 @@ const { Content, Sider } = Layout;
 
 const items = [
     { path: "/", key: "1", label: "Home" },
-    { path: "/about", key: "2", label: "About" },
-    { path: "/dashboard", key: "3", label: "Dashboard" },
+    { path: "/dashboard", key: "2", label: "Dashboard" },
+    { path: "/about", key: "3", label: "About" },
 ];
 
 const App: React.FC = () => {
