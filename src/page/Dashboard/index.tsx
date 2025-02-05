@@ -1,7 +1,7 @@
 // src/pages/PerformanceDashboard.tsx
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Spin, Alert, Tabs, Table } from 'antd';
+import { Spin, Alert, Tabs, Table, Button } from 'antd';
 
 interface PerformanceData {
   timestamp: string;
@@ -9,6 +9,7 @@ interface PerformanceData {
   dnsLookupTime?: number;
   tcpConnectionTime?: number;
   resourceDuration?: number;
+  whiteScreenCount?: number; // 新增字段
   [key: string]: any;
 }
 
@@ -37,6 +38,12 @@ const columns = [
     key: 'tcp',
     render: (value: number) => value?.toFixed(2),
   },
+  {
+    title: '白屏次数',
+    dataIndex: 'whiteScreenCount',
+    key: 'whiteScreen',
+    render: (value: number) => value || 0,
+  },
 ];
 
 const PerformanceDashboard = () => {
@@ -46,17 +53,19 @@ const PerformanceDashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+
       try {
         const response = await fetch('http://localhost:5501/api/performance?limit=100');
         if (!response.ok) throw new Error('数据获取失败');
         const result = await response.json();
-
+        console.log('result.data',result.data)
         // 转换数据格式
         const formattedData = result.data.map((item: any) => ({
           timestamp: new Date(item.timestamp).toLocaleString(),
           ttfb: item.ttfb,
           dnsLookupTime: item.dnsLookupTime,
           tcpConnectionTime: item.tcpConnectionTime,
+          whiteScreenCount: item.whiteScreenCount
         }));
 
         setData(formattedData.reverse()); // 按时间升序排列
@@ -109,6 +118,13 @@ const PerformanceDashboard = () => {
                   dataKey="tcpConnectionTime"
                   stroke="#ffc658"
                   name="TCP连接 (ms)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="whiteScreenCount"
+                  stroke="#ff7300"
+                  name="白屏次数"
+                  strokeDasharray="5 5"
                 />
               </LineChart>
             </ResponsiveContainer>
