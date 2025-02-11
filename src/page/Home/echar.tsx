@@ -74,25 +74,13 @@ const Mychart = React.memo(() => {
   };
 
 
-  const fetchTrafficData = async () => {
-    try {
-      const response = await fetch('http://localhost:5501/api/get-traffic-data');
-      const data = await response.json();
-      if (data.success) {
-        setTrafficData(data.data);
-      }
-    } catch (error) {
-      console.error('获取流量数据失败:', error);
-    }
-  };
-
+  //记录用户在子页面的停留时长
   useEffect(() => {
     // 记录用户进入页面的时间
     setEntryTime(Date.now());
     // 初始加载 pvuv 数据
     fetchPvUvData();
     fetchPageDurations();
-    fetchTrafficData();
     // 设置定时器，每隔 10 秒刷新一次数据
     const intervalId = setInterval(() => {
       setRemainingTime(prevTime => {
@@ -101,7 +89,6 @@ const Mychart = React.memo(() => {
         } else {
           fetchPvUvData();
           fetchPageDurations();
-          fetchTrafficData();
           return 10;
         }
       });
@@ -117,7 +104,7 @@ const Mychart = React.memo(() => {
     };
   }, [location.pathname, entryTime]);
 
-  
+
   //发送停留时长数据到数据库
   const sendDurationData = async (pagePath: string, duration: number) => {
     try {
