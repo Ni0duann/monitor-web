@@ -16,17 +16,38 @@ type PvUvData = {
   uvTotal: number;
 };
 
+// 定义今日和昨日流量数据类型
+type TrafficData = {
+  today: {
+    pv: number;
+    uv: number;
+    averageDuration: string;
+  };
+  yesterday: {
+    pv: number;
+    uv: number;
+    averageDuration: string;
+  };
+};
+
+// 定义页面停留时长数据类型
+type PageDurationData = {
+  pagePath: string;
+  averageDuration: string;
+};
+
 const Mychart = React.memo(() => {
   const chartRef = React.useRef<HTMLDivElement>(null);
   const [pvUvData, setPvUvData] = useState<PvUvData | null>(null);
-  //页面刷新倒计时
+  // 页面刷新倒计时
   const [remainingTime, setRemainingTime] = useState(10);
-  
+
   const location = useLocation();
   const [entryTime, setEntryTime] = useState<number | null>(null);
   const [pageDurations, setPageDurations] = useState<PageDurationData[]>([]);
+  const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
 
-  //获取pvuv相关数据
+  // 获取 pvuv 相关数据
   const fetchPvUvData = async () => {
     try {
       const response = await fetch('http://localhost:5501/api/get-pv-uv');
@@ -39,6 +60,7 @@ const Mychart = React.memo(() => {
     }
   };
 
+  //向数据库获取页面停留时长数据
   const fetchPageDurations = async () => {
     try {
       const response = await fetch('http://localhost:5501/api/get-page-durations');
@@ -52,11 +74,25 @@ const Mychart = React.memo(() => {
   };
 
 
+  const fetchTrafficData = async () => {
+    try {
+      const response = await fetch('http://localhost:5501/api/get-traffic-data');
+      const data = await response.json();
+      if (data.success) {
+        setTrafficData(data.data);
+      }
+    } catch (error) {
+      console.error('获取流量数据失败:', error);
+    }
+  };
+
   useEffect(() => {
     // 记录用户进入页面的时间
     setEntryTime(Date.now());
-    // 初始加载pvuv数据
+    // 初始加载 pvuv 数据
     fetchPvUvData();
+    fetchPageDurations();
+    fetchTrafficData();
     // 设置定时器，每隔 10 秒刷新一次数据
     const intervalId = setInterval(() => {
       setRemainingTime(prevTime => {
@@ -64,6 +100,8 @@ const Mychart = React.memo(() => {
           return prevTime - 1;
         } else {
           fetchPvUvData();
+          fetchPageDurations();
+          fetchTrafficData();
           return 10;
         }
       });
@@ -79,6 +117,8 @@ const Mychart = React.memo(() => {
     };
   }, [location.pathname, entryTime]);
 
+  
+  //发送停留时长数据到数据库
   const sendDurationData = async (pagePath: string, duration: number) => {
     try {
       await fetch('http://localhost:5501/api/report-duration', {
@@ -97,59 +137,7 @@ const Mychart = React.memo(() => {
   };
 
 
-  useEffect(() => {
-    if (pvUvData) {
-      const { pv1, pv2, pv3, pvTotal, uvTotal } = pvUvData;
-
-      const chartDom = chartRef.current;
-      const myChart = echarts.init(chartDom);
-      const option: EChartsOption = {
-        title: {
-          text: "总 PV 和 UV 统计",
-          subtext: "实时数据",
-          left: "center",
-        },
-        tooltip: {
-          trigger: "axis",
-          axisPointer: {
-            type: "cross",
-            crossStyle: {
-              color: "#999",
-            },
-          },
-        },
-        legend: {
-          data: ["总 PV", "总 UV"],
-          orient: "vertical",
-          left: "left",
-        },
-        xAxis: {
-          type: "category",
-          data: ["统计"],
-        },
-        yAxis: {
-          type: "value",
-        },
-        series: [
-          {
-            name: "总 PV",
-            type: "line",
-            data: [pvTotal],
-          },
-          {
-            name: "总 UV",
-            type: "line",
-            data: [uvTotal],
-          },
-        ],
-      };
-
-      if (option && typeof option === "object") {
-        myChart.setOption(option);
-      }
-    }
-  }, [pvUvData]);
-
+//将获取到的流量数据显示在页面上
   const renderTable = () => {
     if (pvUvData) {
       const { pv1, pv2, pv3, pvTotal } = pvUvData;
@@ -169,16 +157,20 @@ const Mychart = React.memo(() => {
               <th>入口页面</th>
               <th>浏览量(PV)</th>
               <th>占比</th>
+              <th>平均访问时长</th>
             </tr>
           </thead>
           <tbody>
             {data.map((item, index) => {
               const percentage = ((item.pv / pvTotal) * 100).toFixed(2);
+              const pageDuration = pageDurations.find(d => d.pagePath === item.page);
+              const averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
               return (
                 <tr key={index}>
                   <td>{item.page}</td>
                   <td>{item.pv.toLocaleString()}</td>
                   <td>{percentage}%</td>
+                  <td>{averageDuration}</td>
                 </tr>
               );
             })}
@@ -189,8 +181,43 @@ const Mychart = React.memo(() => {
     return null;
   };
 
+  const renderTrafficTable = () => {
+    if (trafficData) {
+      const { today, yesterday } = trafficData;
+      return (
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>浏览量(PV)</th>
+              <th>访客数(UV)</th>
+              <th>总平均访问时长</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>今日</td>
+              <td>{today.pv.toLocaleString()}</td>
+              <td>{today.uv.toLocaleString()}</td>
+              <td>{today.averageDuration}</td>
+            </tr>
+            <tr>
+              <td>昨日</td>
+              <td>{yesterday.pv.toLocaleString()}</td>
+              <td>{yesterday.uv.toLocaleString()}</td>
+              <td>{yesterday.averageDuration}</td>
+            </tr>
+          </tbody>
+        </table>
+      );
+    }
+    return null;
+  };
+
   return (
     <div>
+      <h2>今日流量</h2>
+      {renderTrafficTable()}
       <div ref={chartRef} style={{ width: "100%", height: "50vh" }} />
       <h2>Top3 入口页面</h2>
       {renderTable()}
