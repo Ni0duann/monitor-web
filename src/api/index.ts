@@ -1,40 +1,15 @@
-// 与服务端发送或接受数据的各API
+// 与服务端发送或接受数据的各API接口调用函数
+
 const BASE_URL = 'http://localhost:5500';
 
-interface PerformanceData {
-    performance: {
-        ttfb: number;
-        lcpRenderTime: number;
-        fcpStartTime: number;
-        whiteScreenCount?: number;
-    };
-    errors?: object;
-}
-
-interface QueryParams {
-    limit?: number;
-    rangeTime?: number;
-    startTime?: string;
-    endTime?: string;
-}
-
-interface WhiteScreenReport {
-    pageUrl: string;
-    browser?: string;
-    os?: string;
-    device_type?: string;
-}
-
-interface FlowDataParams {
-    pagePath: string;
-    dataType: 'pv' | 'uv';
-    rangeTime?: number;
-}
-
-interface DurationData {
-    pagePath: string;
-    duration: number;
-}
+// 导出数据类型接口
+import {
+    PerformanceData,
+    QueryParams,
+    WhiteScreenReport,
+    FlowDataParams,
+    DurationData
+} from './interface';
 
 // 通用请求函数主体
 async function fetchAPI<T>(url: string, method: string, body?: object, query?: Record<string, any>): Promise<T> {
