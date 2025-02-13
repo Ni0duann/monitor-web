@@ -1,6 +1,7 @@
 import * as echarts from "echarts";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { getFlowData, pushDuration, getDurations } from '@/api'; // 
 
 type EChartsOption = echarts.EChartsOption;
 
