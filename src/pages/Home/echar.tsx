@@ -41,7 +41,7 @@ const Mychart = React.memo(() => {
   const chartRef = React.useRef<HTMLDivElement>(null);
   const [pvUvData, setPvUvData] = useState<PvUvData | null>(null);
   // 页面刷新倒计时
-  const [remainingTime, setRemainingTime] = useState(10);
+  const [remainingTime, setRemainingTime] = useState(30);
 
   const location = useLocation();
   const [entryTime, setEntryTime] = useState<number | null>(null);
@@ -171,7 +171,7 @@ const Mychart = React.memo(() => {
 
   const renderTrafficTable = () => {
     if (trafficData) {
-      const { today, yesterday } = trafficData;
+      // const { today, yesterday } = trafficData;
       return (
         <table>
           <thead>
@@ -185,14 +185,14 @@ const Mychart = React.memo(() => {
           <tbody>
             <tr>
               <td>今日</td>
-              <td>{today.pv.toLocaleString()}</td>
-              <td>{today.uv.toLocaleString()}</td>
+              {/* <td>{today.pv.toLocaleString()}</td>
+              <td>{today.uv.toLocaleString()}</td> */}
               <td>{today.averageDuration}</td>
             </tr>
             <tr>
               <td>昨日</td>
-              <td>{yesterday.pv.toLocaleString()}</td>
-              <td>{yesterday.uv.toLocaleString()}</td>
+              {/* <td>{yesterday.pv.toLocaleString()}</td>
+              <td>{yesterday.uv.toLocaleString()}</td> */}
               <td>{yesterday.averageDuration}</td>
             </tr>
           </tbody>
