@@ -27,6 +27,10 @@ export interface WhiteScreenReport {
 export interface FlowDataParams {
     pagePath: string;
     dataType: 'pv' | 'uv';
+    os?: string;
+    device_type?: string;
+    browser?: string;
+    ip?: string;
     rangeTime?: number;
 }
 

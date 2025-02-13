@@ -20,29 +20,14 @@ const PerformanceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // // 删除数据库中的数据
-  // const handleDelete = async (timestamp: string) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:5501/api/delete_pref/${timestamp}`, {
-  //       method: 'DELETE',
-  //     });
-  //     if (!response.ok) throw new Error('删除失败');
-  //     setData(data.filter(item => item.timestamp !== timestamp));
-  //   } catch (err) {
-  //     setError(err instanceof Error ? err.message : '未知错误');
-  //   }
-  // };
-
   // 删除数据库中的数据
   const handleDelete = async (timestamp: string) => {
     try {
-      // 调用 deletePerformance 函数删除数据
-      const { success } = await deletePerformance(timestamp);
-      if (success) {
-        setData(data.filter(item => item.timestamp !== timestamp));
-      } else {
-        throw new Error('删除失败');
-      }
+      const response = await fetch(`http://localhost:5500/api/delete_pref/${timestamp}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('删除失败');
+      setData(data.filter(item => item.timestamp !== timestamp));
     } catch (err) {
       setError(err instanceof Error ? err.message : '未知错误');
     }

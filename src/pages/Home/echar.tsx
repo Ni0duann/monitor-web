@@ -7,7 +7,6 @@ import  FlowDataFetcher  from '@/utils/getFlowData'
 
 type EChartsOption = echarts.EChartsOption;
 
-
 type pvuvList = {
   pv1: number;
   uv1: number;
@@ -52,26 +51,29 @@ const Mychart = React.memo(() => {
   const [flowData, setFlowData] = useState<pvuvList | null>(null);
 
   const pagePaths = [
-    "http://localhost:5173/Page1",
-    "http://localhost:5173/Page2",
-    "http://localhost:5173/Page3"
+    "http://localhost:5173/page1",
+    "http://localhost:5173/page2",
+    "http://localhost:5173/page3"
   ];
 
   // 使用示例
   async function fetchPvUvData() {
+    console.log('fetchPvUvData 函数被调用');
     try {
       const fetcher = new FlowDataFetcher();
       const allFlowData = await fetcher.fetchAll(7); // 假设 rangeTime 为 7
       console.log('所有流量数据:', allFlowData);
       setFlowData(allFlowData);
-      console.log('flowData', flowData)
+
     } catch (error) {
       console.error('获取所有流量数据时出错:', error);
     }
   }
 
-
-
+  // 监听 flowData 状态变化
+  useEffect(() => {
+    console.log('更新后的 flowData:', flowData);
+  }, [flowData]);
 
   // // 获取 pvuv 相关数据
   // const fetchPvUvData = async () => {
@@ -121,17 +123,17 @@ const Mychart = React.memo(() => {
   // };
 
   //向数据库获取页面停留时长数据
-  const fetchPageDurations = async () => {
-    try {
-      const response = await fetch('http://localhost:5501/api/get-page-durations');
-      const data = await response.json();
-      if (data.success) {
-        setPageDurations(data.data);
-      }
-    } catch (error) {
-      console.error('获取页面停留时长数据失败:', error);
-    }
-  };
+  // const fetchPageDurations = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:5501/api/get-page-durations');
+  //     const data = await response.json();
+  //     if (data.success) {
+  //       setPageDurations(data.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('获取页面停留时长数据失败:', error);
+  //   }
+  // };
 
 
   //记录用户在子页面的停留时长
@@ -140,7 +142,7 @@ const Mychart = React.memo(() => {
     setEntryTime(Date.now());
     // 初始加载 pvuv 数据
     fetchPvUvData();
-    fetchPageDurations();
+    // fetchPageDurations();
     // 设置定时器，每隔 10 秒刷新一次数据
     const intervalId = setInterval(() => {
       setRemainingTime(prevTime => {
@@ -148,7 +150,7 @@ const Mychart = React.memo(() => {
           return prevTime - 1;
         } else {
           fetchPvUvData();
-          fetchPageDurations();
+          // fetchPageDurations();
           return 30;
         }
       });
@@ -156,32 +158,28 @@ const Mychart = React.memo(() => {
     // 组件卸载时清除定时器
     return () => {
       clearInterval(intervalId);
-      if (entryTime) {
-        const exitTime = Date.now();
-        const duration = exitTime - entryTime;
-        sendDurationData(location.pathname, duration);
-      }
+    
     };
-  }, [location.pathname, entryTime]);
+  }, []);
 
 
   //发送停留时长数据到数据库
-  const sendDurationData = async (pagePath: string, duration: number) => {
-    try {
-      await fetch('http://localhost:5501/api/report-duration', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          pagePath,
-          duration
-        })
-      });
-    } catch (error) {
-      console.error('发送停留时长数据失败:', error);
-    }
-  };
+  // const sendDurationData = async (pagePath: string, duration: number) => {
+  //   try {
+  //     await fetch('http://localhost:5501/api/report-duration', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         pagePath,
+  //         duration
+  //       })
+  //     });
+  //   } catch (error) {
+  //     console.error('发送停留时长数据失败:', error);
+  //   }
+  // };
 
 
 //将获取到的流量数据显示在页面上

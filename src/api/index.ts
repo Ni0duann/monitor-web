@@ -55,17 +55,18 @@ export async function getWhiteScreenCount(pageUrl: string, rangeTime?: number) {
 }
 
 // 5. 流量数据上报
-export async function pushFlowData(pagePath: string, dataType: 'pv' | 'uv') {
-    return fetchAPI<{ success: boolean }>('/api/push_flowData', 'POST', { pagePath, dataType });
+export async function pushFlowData(pagePath: string, addCount?: number) {
+    return fetchAPI<{ success: boolean }>('/api/push_flowData', 'POST', { pagePath, addCount });
 }
 
 // 6. 获取流量数据
 export async function getFlowData(params: FlowDataParams) {
+    const { pagePath, dataType, os = 'All', device_type = 'All', browser = 'All', ip = 'All', rangeTime = 7 } = params;
     return fetchAPI<{ success: boolean; totalCount: number }>(
         '/api/get_flowData',
         'GET',
         undefined,
-        params
+        { pagePath, dataType, os, device_type, browser, ip, rangeTime }
     );
 }
 
