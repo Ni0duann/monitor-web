@@ -1,5 +1,4 @@
-// /api/index.ts
-
+// 与服务端发送或接受数据的各API
 const BASE_URL = 'http://localhost:5500';
 
 interface PerformanceData {
@@ -37,7 +36,7 @@ interface DurationData {
     duration: number;
 }
 
-// 通用请求函数
+// 通用请求函数主体
 async function fetchAPI<T>(url: string, method: string, body?: object, query?: Record<string, any>): Promise<T> {
     const headers = { 'Content-Type': 'application/json' };
     const queryString = query ? `?${new URLSearchParams(query).toString()}` : '';
@@ -115,7 +114,7 @@ export async function deletePerformance(timestamp: string) {
     return fetchAPI<{ success: boolean }>(`/api/performance/${timestamp}`, 'DELETE');
 }
 
-// 错误处理增强
+// 错误处理增强，当 Promise 被拒绝（rejected）且没有被 catch 块捕获时，会触发这个事件
 window.addEventListener('unhandledrejection', event => {
     if (event.reason instanceof Error) {
         console.error('API Error:', event.reason.message);
