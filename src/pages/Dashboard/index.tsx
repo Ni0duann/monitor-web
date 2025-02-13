@@ -12,6 +12,7 @@ interface PerformanceData {
   lcpStartTime?: number;
   fcpStartTime?: number;
   whiteScreenCount?: number; // 新增字段
+  [key: string]: number | string | undefined;
 }
 
 const PerformanceDashboard = () => {
@@ -83,22 +84,27 @@ const PerformanceDashboard = () => {
           }
 
           // 根据字段名填充数据
-          switch (item.field) {
-            case 'ttfb':
-              mergedData[timestamp].ttfb = item.value;
-              break;
-            case 'lcp_render_time':
-              mergedData[timestamp].lcpStartTime = item.value;
-              break;
-            case 'fcp_start_time':
-              mergedData[timestamp].fcpStartTime = item.value;
-              break;
-            case 'count':
-              if (item.type === 'white_screen') {
-                mergedData[timestamp].whiteScreenCount = item.value;
-              }
-              break;
-          }
+
+          const field = item._field;
+          const value = item._value;
+          // 类型断言确保类型安全
+          (mergedData[timestamp] as Record<string, number | string | undefined>)[field] = value;
+          // switch (item.field) {
+          //   case 'ttfb':
+          //     mergedData[timestamp].ttfb = item.value;
+          //     break;
+          //   case 'lcp_render_time':
+          //     mergedData[timestamp].lcpStartTime = item.value;
+          //     break;
+          //   case 'fcp_start_time':
+          //     mergedData[timestamp].fcpStartTime = item.value;
+          //     break;
+          //   case 'count':
+          //     if (item.type === 'white_screen') {
+          //       mergedData[timestamp].whiteScreenCount = item.value;
+          //     }
+          //     break;
+          // }
         });
 
         // 转换为数组并按时间排序
@@ -133,14 +139,14 @@ const PerformanceDashboard = () => {
     },
     {
       title: 'LCP(ms)',
-      dataIndex: 'lcpStartTime',
-      key: 'lcpStartTime',
+      dataIndex: 'lcp_render_time',
+      key: 'lcp_render_time',
       render: (value: number) => value?.toFixed(2),
     },
     {
       title: 'FCP(ms)',
-      dataIndex: 'fcpStartTime',
-      key: 'fcpStartTime',
+      dataIndex: 'fcp_start_time',
+      key: 'fcp_start_time',
       render: (value: number) => value?.toFixed(2),
     },
     {

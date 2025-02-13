@@ -2,7 +2,7 @@ import * as echarts from "echarts";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getFlowData, pushDuration, getDurations } from '@/api'; // 
-import { FlowDataParams, DurationData }from 
+import { FlowDataParams, DurationData }from '@/interface'
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -52,11 +52,43 @@ const Mychart = React.memo(() => {
   // 获取 pvuv 相关数据
   const fetchPvUvData = async () => {
     try {
-      const response = await fetch('http://localhost:5501/api/get-pv-uv');
-      const data = await response.json();
-      if (data.success) {
-        setPvUvData(data.data);
+      const pagePaths = [
+        "http://localhost:5173/Page1",
+        "http://localhost:5173/Page2",
+        "http://localhost:5173/Page3"
+      ];
+      let pv1 = 0, pv2 = 0, pv3 = 0, pvTotal = 0;
+
+      for (const pagePath of pagePaths) {
+        const params: FlowDataParams = {
+          pagePath,
+          dataType: 'pv'
+        };
+        const response = await getFlowData(params);
+        console.log('response ',response)
+        if (response.success) {
+          const pvCount = response.totalCount;
+          if (pagePath === "http://localhost:5173/Page1") {
+            pv1 = pvCount;
+          } else if (pagePath === "http://localhost:5173/Page2") {
+            pv2 = pvCount;
+          } else if (pagePath === "http://localhost:5173/Page3") {
+            pv3 = pvCount;
+          }
+          pvTotal += pvCount;
+        }
       }
+
+      setPvUvData({
+        pv1,
+        uv1: 0, // 假设没有 UV 数据获取逻辑，暂时设为 0
+        pv2,
+        uv2: 0,
+        pv3,
+        uv3: 0,
+        pvTotal,
+        uvTotal: 0
+      });
     } catch (error) {
       console.error('获取 pv/uv 数据失败:', error);
     }
@@ -188,13 +220,13 @@ const Mychart = React.memo(() => {
               <td>今日</td>
               {/* <td>{today.pv.toLocaleString()}</td>
               <td>{today.uv.toLocaleString()}</td> */}
-              <td>{today.averageDuration}</td>
+              {/* <td>{today.averageDuration}</td> */}
             </tr>
             <tr>
               <td>昨日</td>
               {/* <td>{yesterday.pv.toLocaleString()}</td>
               <td>{yesterday.uv.toLocaleString()}</td> */}
-              <td>{yesterday.averageDuration}</td>
+              {/* <td>{yesterday.averageDuration}</td> */}
             </tr>
           </tbody>
         </table>
