@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getFlowData, pushDuration, getDurations } from '@/api'; // 
 import { FlowDataParams, DurationData }from '@/interface'
+import  FlowDataFetcher  from '@/utils/getFlowData'
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -54,52 +55,66 @@ const Mychart = React.memo(() => {
     "http://localhost:5173/Page3"
   ];
 
-  // 获取 pvuv 相关数据
-  const fetchPvUvData = async () => {
-    try {
 
-      let pv1 = 0, pv2 = 0, pv3 = 0, pvTotal = 0;
-      let uv1 = 0, uv2 = 0, uv3 = 0, uvTotal = 0;
-
-      for (const pagePath of pagePaths) {
-        const params: FlowDataParams = {
-          pagePath,
-          dataType: 'pv'
-        };
-        const response = await getFlowData(params);
-        console.log('response ',response)
-        if (response.success) {
-
-          //分别为三个页面的名称和数据类型（pv/uv）
-          const flowDatatype = params.dataType;
-          const count = response.totalCount;
-        
-          if (pagePath === "http://localhost:5173/Page1") {
-            pv1 = count;
-           
-          } else if (pagePath === "http://localhost:5173/Page2") {
-            pv2 = count;
-          } else if (pagePath === "http://localhost:5173/Page3") {
-            pv3 = count;
-          }
-          pvTotal += count;
-        }
+  // 使用示例
+  async function fetchPvUvData() {
+      try {
+          const fetcher = new FlowDataFetcher();
+          const allFlowData = await fetcher.fetchAll(7); // 假设 rangeTime 为 7
+          console.log('所有流量数据:', allFlowData);
+      } catch (error) {
+          console.error('获取所有流量数据时出错:', error);
       }
+  }
 
-      setPvUvData({
-        pv1,
-        uv1: 0, // 假设没有 UV 数据获取逻辑，暂时设为 0
-        pv2,
-        uv2: 0,
-        pv3,
-        uv3: 0,
-        pvTotal,
-        uvTotal: 0
-      });
-    } catch (error) {
-      console.error('获取 pv/uv 数据失败:', error);
-    }
-  };
+  fetchPvUvData();
+
+  // // 获取 pvuv 相关数据
+  // const fetchPvUvData = async () => {
+  //   try {
+
+  //     let pv1 = 0, pv2 = 0, pv3 = 0, pvTotal = 0;
+  //     let uv1 = 0, uv2 = 0, uv3 = 0, uvTotal = 0;
+
+  //     for (const pagePath of pagePaths) {
+  //       const params: FlowDataParams = {
+  //         pagePath,
+  //         dataType: 'pv'
+  //       };
+  //       const response = await getFlowData(params);
+  //       console.log('response ',response)
+  //       if (response.success) {
+
+  //         //分别为三个页面的名称和数据类型（pv/uv）
+  //         const flowDatatype = params.dataType;
+  //         const count = response.totalCount;
+        
+  //         if (pagePath === "http://localhost:5173/Page1") {
+  //           pv1 = count;
+           
+  //         } else if (pagePath === "http://localhost:5173/Page2") {
+  //           pv2 = count;
+  //         } else if (pagePath === "http://localhost:5173/Page3") {
+  //           pv3 = count;
+  //         }
+  //         pvTotal += count;
+  //       }
+  //     }
+
+  //     setPvUvData({
+  //       pv1,
+  //       uv1: 0, // 假设没有 UV 数据获取逻辑，暂时设为 0
+  //       pv2,
+  //       uv2: 0,
+  //       pv3,
+  //       uv3: 0,
+  //       pvTotal,
+  //       uvTotal: 0
+  //     });
+  //   } catch (error) {
+  //     console.error('获取 pv/uv 数据失败:', error);
+  //   }
+  // };
 
   //向数据库获取页面停留时长数据
   const fetchPageDurations = async () => {
