@@ -9,7 +9,7 @@ import {
     WhiteScreenReport,
     FlowDataParams,
     DurationData
-} from './interface';
+} from '../interface/interface';
 
 // 通用请求函数主体
 async function fetchAPI<T>(url: string, method: string, body?: object, query?: Record<string, any>): Promise<T> {
