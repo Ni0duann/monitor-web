@@ -19,7 +19,7 @@ const PerformanceDashboard = () => {
   // 删除数据库中的数据
   const handleDelete = async (timestamp: string) => {
     try {
-      const response = await fetch(`http://localhost:5501/api/performance/${timestamp}`, {
+      const response = await fetch(`http://localhost:5501/api/delete_pref/${timestamp}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('删除失败');
@@ -32,7 +32,7 @@ const PerformanceDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:5501/api/performance?limit=100');
+        const response = await fetch('http://localhost:5501/api/get_pref?limit=100');
         if (!response.ok) throw new Error('数据获取失败');
         const result = await response.json();
         console.log('result.data', result.data);
