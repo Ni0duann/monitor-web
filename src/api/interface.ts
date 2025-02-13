@@ -1,4 +1,5 @@
-// apiInterfaces.ts
+// 数据类型接口定义
+
 export interface PerformanceData {
     performance: {
         ttfb: number;
