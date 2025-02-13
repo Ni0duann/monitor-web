@@ -53,7 +53,7 @@ const Mychart = React.memo(() => {
   const pagePaths = [
     "http://localhost:5173/page1",
     "http://localhost:5173/page2",
-    "http://localhost:5173/page3"
+    "http://localhost:5173/Page3"
   ];
 
   // 使用示例
