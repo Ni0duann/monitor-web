@@ -8,7 +8,7 @@ import  FlowDataFetcher  from '@/utils/getFlowData'
 type EChartsOption = echarts.EChartsOption;
 
 
-type PvuvList = {
+type pvuvList = {
   pv1: number;
   uv1: number;
   pv2: number;
@@ -40,15 +40,16 @@ type PageDurationData = {
 };
 
 const Mychart = React.memo(() => {
+  const location = useLocation();
   const chartRef = React.useRef<HTMLDivElement>(null);
-  // const [pvUvData, setPvUvData] = useState<PvUvData | null>(null);
+
   // 页面刷新倒计时
   const [remainingTime, setRemainingTime] = useState(30);
 
-  const location = useLocation();
   const [entryTime, setEntryTime] = useState<number | null>(null);
   const [pageDurations, setPageDurations] = useState<PageDurationData[]>([]);
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
+  const [flowData, setFlowData] = useState<pvuvList | null>(null);
 
   const pagePaths = [
     "http://localhost:5173/Page1",
@@ -62,15 +63,14 @@ const Mychart = React.memo(() => {
       const fetcher = new FlowDataFetcher();
       const allFlowData = await fetcher.fetchAll(7); // 假设 rangeTime 为 7
       console.log('所有流量数据:', allFlowData);
-      return allFlowData;
+      setFlowData(allFlowData);
+      console.log('flowData', flowData)
     } catch (error) {
       console.error('获取所有流量数据时出错:', error);
     }
   }
 
-  const flowData = fetchPvUvData();
 
-  console.log(flowData)
 
 
   // // 获取 pvuv 相关数据
@@ -187,6 +187,7 @@ const Mychart = React.memo(() => {
 //将获取到的流量数据显示在页面上
   const renderTable = () => {
     if (flowData) {
+      const pvTotal = flowData.pvTotal;
       const showData = [
         { page: "http://localhost:5173/Page1", pv:  flowData.pv1 },
         { page: "http://localhost:5173/Page2", pv: flowData.pv2 },
