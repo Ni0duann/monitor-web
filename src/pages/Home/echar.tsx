@@ -57,23 +57,23 @@ const Mychart = React.memo(() => {
   ];
 
   // 使用示例
-  async function fetchPvUvData() {
-    console.log('fetchPvUvData 函数被调用');
-    try {
-      const fetcher = new FlowDataFetcher();
-      const allFlowData = await fetcher.fetchAll(7); // 假设 rangeTime 为 7
-      console.log('所有流量数据:', allFlowData);
-      setFlowData(allFlowData);
+  // async function fetchPvUvData() {
+  //   console.log('fetchPvUvData 函数被调用');
+  //   try {
+  //     const fetcher = new FlowDataFetcher();
+  //     const allFlowData = await fetcher.fetchAll(7); // 假设 rangeTime 为 7
+  //     console.log('所有流量数据:', allFlowData);
+  //     setFlowData(allFlowData);
 
-    } catch (error) {
-      console.error('获取所有流量数据时出错:', error);
-    }
-  }
-
-  // 监听 flowData 状态变化
-  useEffect(() => {
-    console.log('更新后的 flowData:', flowData);
-  }, [flowData]);
+  //   } catch (error) {
+  //     console.error('获取所有流量数据时出错:', error);
+  //   }
+  // }
+  // fetchPvUvData();
+  // // 监听 flowData 状态变化
+  // useEffect(() => {
+  //   console.log('更新后的 flowData:', flowData);
+  // }, [flowData]);
 
   // // 获取 pvuv 相关数据
   // const fetchPvUvData = async () => {
@@ -137,31 +137,46 @@ const Mychart = React.memo(() => {
 
 
   //记录用户在子页面的停留时长
-  useEffect(() => {
-    // 记录用户进入页面的时间
-    setEntryTime(Date.now());
-    // 初始加载 pvuv 数据
-    fetchPvUvData();
-    // fetchPageDurations();
-    // 设置定时器，每隔 10 秒刷新一次数据
-    const intervalId = setInterval(() => {
-      setRemainingTime(prevTime => {
-        if (prevTime > 1) {
-          return prevTime - 1;
-        } else {
-          fetchPvUvData();
-          // fetchPageDurations();
-          return 30;
-        }
-      });
-    }, 3000);
-    // 组件卸载时清除定时器
-    return () => {
-      clearInterval(intervalId);
+  // useEffect(() => {
+  //   // 记录用户进入页面的时间
+  //   setEntryTime(Date.now());
+  //   // 初始加载 pvuv 数据
+  //   fetchPvUvData();
+  //   // fetchPageDurations();
+  //   // 设置定时器，每隔 10 秒刷新一次数据
+  //   const intervalId = setInterval(() => {
+  //     setRemainingTime(prevTime => {
+  //       if (prevTime > 1) {
+  //         return prevTime - 1;
+  //       } else {
+  //         fetchPvUvData();
+  //         // fetchPageDurations();
+  //         return 30;
+  //       }
+  //     });
+  //   }, 3000);
+  //   // 组件卸载时清除定时器
+  //   return () => {
+  //     clearInterval(intervalId);
     
+  //   };
+  // }, []);
+ 
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log('开始获取数据');
+      try {
+        const fetcher = new FlowDataFetcher();
+        const allFlowData = await fetcher.fetchAll(7);
+        console.log('获取到的数据:', allFlowData);
+        setFlowData(allFlowData);
+      } catch (error) {
+        console.error('获取数据失败:', error);
+      }
     };
-  }, []);
 
+    fetchData(); // ✅ 在 useEffect 内调用
+  }, []); // 空依赖数组表示仅在组件挂载时执行
 
   //发送停留时长数据到数据库
   // const sendDurationData = async (pagePath: string, duration: number) => {
@@ -187,9 +202,9 @@ const Mychart = React.memo(() => {
     if (flowData) {
       const pvTotal = flowData.pvTotal;
       const showData = [
-        { page: "http://localhost:5173/Page1", pv:  flowData.pv1 },
-        { page: "http://localhost:5173/Page2", pv: flowData.pv2 },
-        { page: "http://localhost:5173/Page3", pv: flowData.pv3 },
+        { page: "http://localhost:5173/page1", pv:  flowData.pv1 },
+        { page: "http://localhost:5173/page2", pv: flowData.pv2 },
+        { page: "http://localhost:5173/page3", pv: flowData.pv3 },
       ];
 
       // 按 PV 降序排序
