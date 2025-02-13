@@ -56,7 +56,6 @@ const Mychart = React.memo(() => {
     "http://localhost:5173/Page3"
   ];
 
-
   // 使用示例
   async function fetchPvUvData() {
     try {
@@ -187,16 +186,15 @@ const Mychart = React.memo(() => {
 
 //将获取到的流量数据显示在页面上
   const renderTable = () => {
-    if (pvUvData) {
-      // const { pv1, pv2, pv3, pvTotal } = pvUvData;
-      const data = [
-        { page: "http://localhost:5173/Page1", pv:  pvUvData.pv1 },
-        { page: "http://localhost:5173/Page2", pv: pv2 },
-        { page: "http://localhost:5173/Page3", pv: pv3 },
+    if (flowData) {
+      const showData = [
+        { page: "http://localhost:5173/Page1", pv:  flowData.pv1 },
+        { page: "http://localhost:5173/Page2", pv: flowData.pv2 },
+        { page: "http://localhost:5173/Page3", pv: flowData.pv3 },
       ];
 
       // 按 PV 降序排序
-      data.sort((a, b) => b.pv - a.pv);
+      showData.sort((a, b) => b.pv - a.pv);
 
       return (
         <table>
@@ -209,7 +207,7 @@ const Mychart = React.memo(() => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => {
+            {showData.map((item, index) => {
               const percentage = ((item.pv / pvTotal) * 100).toFixed(2);
               const pageDuration = pageDurations.find(d => d.pagePath === item.page);
               const averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
