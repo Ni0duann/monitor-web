@@ -48,16 +48,18 @@ const Mychart = React.memo(() => {
   const [entryTime, setEntryTime] = useState<number | null>(null);
   const [pageDurations, setPageDurations] = useState<PageDurationData[]>([]);
   const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
+  const pagePaths = [
+    "http://localhost:5173/Page1",
+    "http://localhost:5173/Page2",
+    "http://localhost:5173/Page3"
+  ];
 
   // 获取 pvuv 相关数据
   const fetchPvUvData = async () => {
     try {
-      const pagePaths = [
-        "http://localhost:5173/Page1",
-        "http://localhost:5173/Page2",
-        "http://localhost:5173/Page3"
-      ];
+
       let pv1 = 0, pv2 = 0, pv3 = 0, pvTotal = 0;
+      let uv1 = 0, uv2 = 0, uv3 = 0, uvTotal = 0;
 
       for (const pagePath of pagePaths) {
         const params: FlowDataParams = {
@@ -67,15 +69,20 @@ const Mychart = React.memo(() => {
         const response = await getFlowData(params);
         console.log('response ',response)
         if (response.success) {
-          const pvCount = response.totalCount;
+
+          //分别为三个页面的名称和数据类型（pv/uv）
+          const flowDatatype = params.dataType;
+          const count = response.totalCount;
+        
           if (pagePath === "http://localhost:5173/Page1") {
-            pv1 = pvCount;
+            pv1 = count;
+           
           } else if (pagePath === "http://localhost:5173/Page2") {
-            pv2 = pvCount;
+            pv2 = count;
           } else if (pagePath === "http://localhost:5173/Page3") {
-            pv3 = pvCount;
+            pv3 = count;
           }
-          pvTotal += pvCount;
+          pvTotal += count;
         }
       }
 
@@ -123,10 +130,10 @@ const Mychart = React.memo(() => {
         } else {
           fetchPvUvData();
           fetchPageDurations();
-          return 10;
+          return 30;
         }
       });
-    }, 1000);
+    }, 3000);
     // 组件卸载时清除定时器
     return () => {
       clearInterval(intervalId);

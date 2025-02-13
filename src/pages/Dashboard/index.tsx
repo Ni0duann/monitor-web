@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Spin, Alert, Tabs, Table, Button } from 'antd';
 // 导入 API 接口函数
-import { getPerformance, deletePerformance } from '@/api'; 
+import { getPerformance, deletePerformance } from '@/api';
 
 
 interface PerformanceData {
@@ -51,31 +51,15 @@ const PerformanceDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const response = await fetch('http://localhost:5501/api/get_pref?limit=100');
-        // if (!response.ok) throw new Error('数据获取失败');
-        // const result = await response.json();
-        // console.log('result.data', result.data);
-        // // 转换数据格式： 按时间戳合并数据
-        // const mergedData: { [key: string]: PerformanceData } = {};
-
-        // result.data.forEach((item: any) => {
-        //   const timestamp = item.timestamp;
-        //   if (!mergedData[timestamp]) {
-        //     mergedData[timestamp] = {
-        //       timestamp,
-        //       formattedTimestamp: new Date(timestamp).toLocaleString(),
-        //     };
-        //   }
-
         // 调用 getPerformance 函数获取性能数据
         const { success, data: resultData } = await getPerformance({ limit: 100 });
         if (!success) throw new Error('数据获取失败');
         console.log('result.data', resultData);
         // 转换数据格式： 按时间戳合并数据
         const mergedData: { [key: string]: PerformanceData } = {};
-
+        //将时间戳转化为更直观的形式
         resultData.forEach((item: any) => {
-          const timestamp = item.timestamp;
+          const timestamp = item._time;
           if (!mergedData[timestamp]) {
             mergedData[timestamp] = {
               timestamp,
@@ -84,27 +68,11 @@ const PerformanceDashboard = () => {
           }
 
           // 根据字段名填充数据
-
           const field = item._field;
           const value = item._value;
           // 类型断言确保类型安全
           (mergedData[timestamp] as Record<string, number | string | undefined>)[field] = value;
-          // switch (item.field) {
-          //   case 'ttfb':
-          //     mergedData[timestamp].ttfb = item.value;
-          //     break;
-          //   case 'lcp_render_time':
-          //     mergedData[timestamp].lcpStartTime = item.value;
-          //     break;
-          //   case 'fcp_start_time':
-          //     mergedData[timestamp].fcpStartTime = item.value;
-          //     break;
-          //   case 'count':
-          //     if (item.type === 'white_screen') {
-          //       mergedData[timestamp].whiteScreenCount = item.value;
-          //     }
-          //     break;
-          // }
+
         });
 
         // 转换为数组并按时间排序
@@ -159,7 +127,7 @@ const PerformanceDashboard = () => {
       title: '操作',
       key: 'action',
       // 明确参数类型
-      render: ( record: PerformanceData) => (
+      render: (record: PerformanceData) => (
         <Button className="danger" onClick={() => handleDelete(record.timestamp)}>
           删除
         </Button>
