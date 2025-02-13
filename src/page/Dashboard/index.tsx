@@ -4,12 +4,11 @@ import { Spin, Alert, Tabs, Table, Button } from 'antd';
 
 interface PerformanceData {
   timestamp: string;
+  formattedTimestamp: string;
   ttfb?: number;
-  dnsLookupTime?: number;
-  tcpConnectionTime?: number;
-  resourceDuration?: number;
+  lcpStartTime?: number;
+  fcpStartTime?: number;
   whiteScreenCount?: number; // 新增字段
-  [key: string]: any;
 }
 
 const PerformanceDashboard = () => {
@@ -37,17 +36,43 @@ const PerformanceDashboard = () => {
         if (!response.ok) throw new Error('数据获取失败');
         const result = await response.json();
         console.log('result.data', result.data);
-        // 转换数据格式
-        const formattedData = result.data.map((item: any) => ({
-          formattedTimestamp: new Date(item.timestamp).toLocaleString(), // 新增格式化时间字段
-          timestamp: item.timestamp,
-          ttfb: item.ttfb,
-          dnsLookupTime: item.dnsLookupTime,
-          tcpConnectionTime: item.tcpConnectionTime,
-          whiteScreenCount: item.whiteScreenCount
-        }));
-        console.log('formattedData', formattedData);
-        setData(formattedData.reverse()); // 按时间升序排列
+        // 转换数据格式： 按时间戳合并数据
+        const mergedData: { [key: string]: PerformanceData } = {};
+
+        result.data.forEach((item: any) => {
+          const timestamp = item.timestamp;
+          if (!mergedData[timestamp]) {
+            mergedData[timestamp] = {
+              timestamp,
+              formattedTimestamp: new Date(timestamp).toLocaleString(),
+            };
+          }
+
+          // 根据字段名填充数据
+          switch (item.field) {
+            case 'ttfb':
+              mergedData[timestamp].ttfb = item.value;
+              break;
+            case 'lcp_render_time':
+              mergedData[timestamp].lcpStartTime = item.value;
+              break;
+            case 'fcp_start_time':
+              mergedData[timestamp].fcpStartTime = item.value;
+              break;
+            case 'count':
+              if (item.type === 'white_screen') {
+                mergedData[timestamp].whiteScreenCount = item.value;
+              }
+              break;
+          }
+        });
+
+        // 转换为数组并按时间排序
+        const formattedData = Object.values(mergedData).sort((a, b) =>
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+
+        setData(formattedData);
       } catch (err) {
         setError(err instanceof Error ? err.message : '未知错误');
       } finally {
@@ -57,6 +82,7 @@ const PerformanceDashboard = () => {
 
     fetchData();
   }, []);
+
 
   const columns = [
     {
@@ -72,15 +98,15 @@ const PerformanceDashboard = () => {
       render: (value: number) => value?.toFixed(2),
     },
     {
-      title: 'DNS查询',
-      dataIndex: 'dnsLookupTime',
-      key: 'dns',
+      title: 'LCP(ms)',
+      dataIndex: 'lcpStartTime',
+      key: 'lcpStartTime',
       render: (value: number) => value?.toFixed(2),
     },
     {
-      title: 'TCP连接',
-      dataIndex: 'tcpConnectionTime',
-      key: 'tcp',
+      title: 'FCP(ms)',
+      dataIndex: 'fcpStartTime',
+      key: 'fcpStartTime',
       render: (value: number) => value?.toFixed(2),
     },
     {
@@ -131,15 +157,15 @@ const PerformanceDashboard = () => {
                 />
                 <Line
                   type="monotone"
-                  dataKey="dnsLookupTime"
+                  dataKey="lcpStartTime"
                   stroke="#82ca9d"
-                  name="DNS查询 (ms)"
+                  name="LCP(ms)"
                 />
                 <Line
                   type="monotone"
-                  dataKey="tcpConnectionTime"
+                  dataKey="fcpStartTime"
                   stroke="#ffc658"
-                  name="TCP连接 (ms)"
+                  name="FCP(ms)"
                 />
                 <Line
                   type="monotone"
