@@ -1,9 +1,9 @@
 import * as echarts from "echarts";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-// import { getFlowData, pushDuration, getDurations } from '@/api'; // 
-// import { FlowDataParams, DurationData }from '@/interface'
-import  FlowDataFetcher  from '@/utils/getFlowData'
+import { baseUrl, pageLIst } from "@/config/webConfig";
+import FlowDataFetcher from '@/utils/getFlowData';
+import { getDurations, getFlowData } from '@/api';
 
 type EChartsOption = echarts.EChartsOption;
 
@@ -39,18 +39,13 @@ type PageDurationData = {
 };
 
 const Mychart = React.memo(() => {
-  const location = useLocation();
-  const chartRef = React.useRef<HTMLDivElement>(null);
 
+  const chartRef = React.useRef<HTMLDivElement>(null);
   // 页面刷新倒计时
   const [remainingTime, setRemainingTime] = useState(30);
-
-  const [entryTime, setEntryTime] = useState<number | null>(null);
   const [pageDurations, setPageDurations] = useState<PageDurationData[]>([]);
-  const [trafficData, setTrafficData] = useState<TrafficData | null>(null);
+
   const [flowData, setFlowData] = useState<pvuvList | null>(null);
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,23 +55,38 @@ const Mychart = React.memo(() => {
         const allFlowData = await fetcher.fetchAll(7);
         console.log('获取到的数据:', allFlowData);
         setFlowData(allFlowData);
+
+        // 获取每个页面的平均访问时长
+        const durationPromises = pageLIst.map(async (page) => {
+          const { success, data } = await getDurations(page, 7);
+          if (success && data.length > 0) {
+            const averageDuration = data[0]._value.toFixed(2);
+            return { pagePath: page, averageDuration };
+          }
+          return { pagePath: page, averageDuration: 'N/A' };
+        });
+
+        const durations = await Promise.all(durationPromises);
+        setPageDurations(durations);
       } catch (error) {
         console.error('获取数据失败:', error);
       }
     };
 
-    fetchData(); // ✅ 在 useEffect 内调用
-  }, []); // 空依赖数组表示仅在组件挂载时执行
+    fetchData();
+  }, []);
 
+  console.log('sadjiajw2', pageLIst[0], pageLIst[1], pageLIst[2]);
 
-//将获取到的流量数据显示在页面上
+  //将获取到的流量数据显示在页面上
   const renderTable = () => {
     if (flowData) {
       const pvTotal = flowData.pvTotal;
+      const uvTotal = flowData.uvTotal;
       const showData = [
-        { page: "http://localhost:5173/page1", pv:  flowData.pv1 },
-        { page: "http://localhost:5173/page2", pv: flowData.pv2 },
-        { page: "http://localhost:5173/page3", pv: flowData.pv3 },
+        { page: pageLIst[0], pv: flowData.pv1 },
+        { page: pageLIst[1], pv: flowData.pv2 },
+        { page: pageLIst[2], pv: flowData.pv3 },
       ];
 
       // 按 PV 降序排序
@@ -87,7 +97,7 @@ const Mychart = React.memo(() => {
           <thead>
             <tr>
               <th>入口页面</th>
-              <th>浏览量(PV)</th>
+              <th>过去七天浏览量(PV)</th>
               <th>占比</th>
               <th>平均访问时长</th>
             </tr>
@@ -99,7 +109,7 @@ const Mychart = React.memo(() => {
               const averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
               return (
                 <tr key={index}>
-                  <td>{item.page}</td>
+                  <td>{baseUrl + item.page}</td>
                   <td>{item.pv.toLocaleString()}</td>
                   <td>{percentage}%</td>
                   <td>{averageDuration}</td>
@@ -113,43 +123,14 @@ const Mychart = React.memo(() => {
     return null;
   };
 
-  const renderTrafficTable = () => {
-    if (trafficData) {
-      // const { today, yesterday } = trafficData;
-      return (
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>浏览量(PV)</th>
-              <th>访客数(UV)</th>
-              <th>总平均访问时长</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>今日</td>
-              {/* <td>{today.pv.toLocaleString()}</td>
-              <td>{today.uv.toLocaleString()}</td> */}
-              {/* <td>{today.averageDuration}</td> */}
-            </tr>
-            <tr>
-              <td>昨日</td>
-              {/* <td>{yesterday.pv.toLocaleString()}</td>
-              <td>{yesterday.uv.toLocaleString()}</td> */}
-              {/* <td>{yesterday.averageDuration}</td> */}
-            </tr>
-          </tbody>
-        </table>
-      );
-    }
-    return null;
-  };
-
   return (
     <div>
       <h2>今日流量</h2>
-      {renderTrafficTable()}
+      {flowData && (
+        <p>
+          过去 7 天总的 PV 为 {flowData.pvTotal.toLocaleString()}，过去 7 天总的 UV 为 {flowData.uvTotal.toLocaleString()}
+        </p>
+      )}
       <div ref={chartRef} style={{ width: "100%", height: "50vh" }} />
       <h2>Top3 入口页面</h2>
       {renderTable()}

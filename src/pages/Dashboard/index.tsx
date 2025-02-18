@@ -4,14 +4,14 @@ import { Spin, Alert, Tabs, Table, Button } from 'antd';
 // 导入 API 接口函数
 import { getPerformance, deletePerformance } from '@/api';
 
-
 interface PerformanceData {
   timestamp: string;
   formattedTimestamp: string;
   ttfb?: number;
-  lcpStartTime?: number;
-  fcpStartTime?: number;
-  whiteScreenCount?: number; // 新增字段
+  lcp_render_time?: number; // 修改为和后端一致的字段名
+  fcp_start_time?: number; // 修改为和后端一致的字段名
+  redirect_count?: number;
+  // whiteScreenCount?: number;
   [key: string]: number | string | undefined;
 }
 
@@ -57,7 +57,6 @@ const PerformanceDashboard = () => {
           const value = item._value;
           // 类型断言确保类型安全
           (mergedData[timestamp] as Record<string, number | string | undefined>)[field] = value;
-
         });
 
         // 转换为数组并按时间排序
@@ -76,11 +75,10 @@ const PerformanceDashboard = () => {
     fetchData();
   }, []);
 
-
   const columns = [
     {
       title: '时间',
-      dataIndex: 'formattedTimestamp', // 使用格式化后的时间字段
+      dataIndex: 'formattedTimestamp',
       key: 'formattedTimestamp',
       width: 200,
     },
@@ -92,15 +90,21 @@ const PerformanceDashboard = () => {
     },
     {
       title: 'LCP(ms)',
-      dataIndex: 'lcp_render_time',
+      dataIndex: 'lcp_render_time', // 修改为和后端一致的字段名
       key: 'lcp_render_time',
       render: (value: number) => value?.toFixed(2),
     },
     {
       title: 'FCP(ms)',
-      dataIndex: 'fcp_start_time',
+      dataIndex: 'fcp_start_time', // 修改为和后端一致的字段名
       key: 'fcp_start_time',
       render: (value: number) => value?.toFixed(2),
+    },
+    {
+      title: '重定向次数',
+      dataIndex: 'redirect_count',
+      key: 'redirect_count',
+      render: (value: number) => value || 0,
     },
     {
       title: '白屏次数',
@@ -150,13 +154,13 @@ const PerformanceDashboard = () => {
                 />
                 <Line
                   type="monotone"
-                  dataKey="lcpStartTime"
+                  dataKey="lcp_render_time" // 修改为和后端一致的字段名
                   stroke="#82ca9d"
                   name="LCP(ms)"
                 />
                 <Line
                   type="monotone"
-                  dataKey="fcpStartTime"
+                  dataKey="fcp_start_time" // 修改为和后端一致的字段名
                   stroke="#ffc658"
                   name="FCP(ms)"
                 />
@@ -165,6 +169,13 @@ const PerformanceDashboard = () => {
                   dataKey="whiteScreenCount"
                   stroke="#ff7300"
                   name="白屏次数"
+                  strokeDasharray="5 5"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="redirect_count"
+                  stroke="#ff0000"
+                  name="重定向次数"
                   strokeDasharray="5 5"
                 />
               </LineChart>
