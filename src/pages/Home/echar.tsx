@@ -1,11 +1,10 @@
-import * as echarts from "echarts";
+// import * as echarts from "echarts";
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { baseUrl, pageLIst } from "@/config/webConfig";
 import FlowDataFetcher from '@/utils/getFlowData';
-import { getDurations, getFlowData } from '@/api';
+import { getDurations} from '@/api';
 
-type EChartsOption = echarts.EChartsOption;
+// type EChartsOption = echarts.EChartsOption;
 
 type pvuvList = {
   pv1: number;
@@ -19,18 +18,18 @@ type pvuvList = {
 };
 
 // 定义今日和昨日流量数据类型
-type TrafficData = {
-  today: {
-    pv: number;
-    uv: number;
-    averageDuration: string;
-  };
-  yesterday: {
-    pv: number;
-    uv: number;
-    averageDuration: string;
-  };
-};
+// type TrafficData = {
+//   today: {
+//     pv: number;
+//     uv: number;
+//     averageDuration: string;
+//   };
+//   yesterday: {
+//     pv: number;
+//     uv: number;
+//     averageDuration: string;
+//   };
+// };
 
 // 定义页面停留时长数据类型
 type PageDurationData = {
@@ -76,13 +75,10 @@ const Mychart = React.memo(() => {
     fetchData();
   }, []);
 
-  console.log('sadjiajw2', pageLIst[0], pageLIst[1], pageLIst[2]);
-
   //将获取到的流量数据显示在页面上
   const renderTable = () => {
     if (flowData) {
-      const pvTotal = flowData.pvTotal;
-      const uvTotal = flowData.uvTotal;
+   
       const showData = [
         { page: pageLIst[0], pv: flowData.pv1 },
         { page: pageLIst[1], pv: flowData.pv2 },
@@ -104,7 +100,7 @@ const Mychart = React.memo(() => {
           </thead>
           <tbody>
             {showData.map((item, index) => {
-              const percentage = ((item.pv / pvTotal) * 100).toFixed(2);
+              const percentage = ((item.pv / flowData.pvTotal) * 100).toFixed(2);
               const pageDuration = pageDurations.find(d => d.pagePath === item.page);
               const averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
               return (
