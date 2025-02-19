@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Spin, Alert, Tabs, Table, Button } from 'antd';
 // 导入 API 接口函数
-import { getPerformance, deletePerformance } from '@/api';
+import { getPerformance, deletePerformance,getWhiteScreenCount } from '@/api';
 
 import './index.scss'; 
 
@@ -17,12 +17,18 @@ interface PerformanceData {
   [key: string]: number | string | undefined;
 }
 
+interface WhiteScreenData {
+  whiteScreenUrl: string;
+  whiteScreenCount: number;
+}
+
 const PerformanceDashboard = () => {
   const [data, setData] = useState<PerformanceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [whiteScreenData, setWhiteScreenData] = useState<WhiteScreenData[]>([]);
 
-  // 删除数据库中的数据
+  // 删除数据库中的性能监控数据
   const handleDelete = async (timestamp: string) => {
     try {
       const response = await fetch(`http://localhost:5500/api/delete_pref/${timestamp}`, {
@@ -74,7 +80,24 @@ const PerformanceDashboard = () => {
       }
     };
 
+    async function fetchWhiteScreenData () {
+      try {
+        // 定义 pageUrl
+        const pageUrl = '/White';
+        const { success, data: whiteScreenResult = [] } = await getWhiteScreenCount(pageUrl,7);
+        if (!success) throw new Error('白屏数据获取失败');
+        const formattedWhiteScreenData: WhiteScreenData[] = whiteScreenResult.map((item: any) => ({
+          whiteScreenUrl: item.pageUrl,
+          whiteScreenCount: item._value,
+        }));
+        setWhiteScreenData(formattedWhiteScreenData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '未知错误');
+      }
+    };
+
     fetchData();
+    fetchWhiteScreenData();
   }, []);
 
   const columns = [
@@ -126,9 +149,21 @@ const PerformanceDashboard = () => {
     },
   ];
 
+  const whiteScreenColumns = [
+    {
+      title: '白屏URL',
+      dataIndex: 'whiteScreenUrl',
+      key: 'whiteScreenUrl',
+    },
+    {
+      title: '白屏次数',
+      dataIndex: 'whiteScreenCount',
+      key: 'whiteScreenCount',
+    },
+  ];
+
   if (loading) return <Spin tip="加载性能数据..." size="large" />;
   if (error) return <Alert message="错误" description={error} type="error" showIcon />;
-
   return (
     <div style={{ padding: 20 }}>
       <h1>性能监控仪表盘</h1>
@@ -191,6 +226,16 @@ const PerformanceDashboard = () => {
             dataSource={data}
             pagination={{ pageSize: 10 }}
             rowKey="timestamp"
+            scroll={{ x: 800 }}
+          />
+        </Tabs.TabPane>
+
+        <Tabs.TabPane tab="白屏监控" key="3">
+          <Table
+            columns={whiteScreenColumns}
+            dataSource={whiteScreenData}
+            pagination={{ pageSize: 10 }}
+            rowKey="whiteScreenUrl"
             scroll={{ x: 800 }}
           />
         </Tabs.TabPane>

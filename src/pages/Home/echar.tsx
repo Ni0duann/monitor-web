@@ -17,19 +17,6 @@ type pvuvList = {
   uvTotal: number;
 };
 
-// 定义今日和昨日流量数据类型
-// type TrafficData = {
-//   today: {
-//     pv: number;
-//     uv: number;
-//     averageDuration: string;
-//   };
-//   yesterday: {
-//     pv: number;
-//     uv: number;
-//     averageDuration: string;
-//   };
-// };
 
 // 定义页面停留时长数据类型
 type PageDurationData = {
@@ -43,12 +30,10 @@ const Mychart = React.memo(() => {
   // 页面刷新倒计时
   const [remainingTime, setRemainingTime] = useState(30);
   const [pageDurations, setPageDurations] = useState<PageDurationData[]>([]);
-
   const [flowData, setFlowData] = useState<pvuvList | null>(null);
-
+  
   useEffect(() => {
     const fetchData = async () => {
-      console.log('开始获取数据');
       try {
         const fetcher = new FlowDataFetcher();
         const allFlowData = await fetcher.fetchAll(7);
@@ -67,18 +52,17 @@ const Mychart = React.memo(() => {
 
         const durations = await Promise.all(durationPromises);
         setPageDurations(durations);
+
       } catch (error) {
         console.error('获取数据失败:', error);
       }
     };
-
     fetchData();
   }, []);
 
   //将获取到的流量数据显示在页面上
   const renderTable = () => {
     if (flowData) {
-   
       const showData = [
         { page: pageLIst[0], pv: flowData.pv1 },
         { page: pageLIst[1], pv: flowData.pv2 },
@@ -95,14 +79,16 @@ const Mychart = React.memo(() => {
               <th>入口页面</th>
               <th>过去七天浏览量(PV)</th>
               <th>占比</th>
-              <th>平均访问时长</th>
+              <th>平均访问时长(s)</th>
             </tr>
           </thead>
           <tbody>
             {showData.map((item, index) => {
               const percentage = ((item.pv / flowData.pvTotal) * 100).toFixed(2);
               const pageDuration = pageDurations.find(d => d.pagePath === item.page);
-              const averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
+              let averageDuration = pageDuration ? pageDuration.averageDuration : 'N/A';
+              parseFloat(averageDuration)
+              averageDuration = (+averageDuration / 1000).toFixed(2)
               return (
                 <tr key={index}>
                   <td>{baseUrl + item.page}</td>
