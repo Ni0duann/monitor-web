@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Spin, Alert, Tabs, Table, Button } from 'antd';
 // 导入 API 接口函数
 import { getPerformance, deletePerformance,getWhiteScreenCount } from '@/api';
+import { baseUrl } from '@/config/webConfig';
 
 import './index.scss'; 
 
@@ -87,7 +88,7 @@ const PerformanceDashboard = () => {
         const { success, data: whiteScreenResult = [] } = await getWhiteScreenCount(pageUrl,7);
         if (!success) throw new Error('白屏数据获取失败');
         const formattedWhiteScreenData: WhiteScreenData[] = whiteScreenResult.map((item: any) => ({
-          whiteScreenUrl: item.pageUrl,
+          whiteScreenUrl: baseUrl +item.pageUrl,
           whiteScreenCount: item._value,
         }));
         setWhiteScreenData(formattedWhiteScreenData);
