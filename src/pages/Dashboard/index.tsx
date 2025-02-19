@@ -4,6 +4,8 @@ import { Spin, Alert, Tabs, Table, Button } from 'antd';
 // 导入 API 接口函数
 import { getPerformance, deletePerformance } from '@/api';
 
+import './index.scss'; 
+
 interface PerformanceData {
   timestamp: string;
   formattedTimestamp: string;

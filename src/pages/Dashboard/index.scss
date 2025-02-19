@@ -1,0 +1,17 @@
+// 针对折线图中的线条，让其更粗
+.recharts-line {
+    stroke-width: 20px; // 调整这个值来改变线条的粗细，数值越大线条越粗
+}
+
+// 针对 X 轴和 Y 轴的文本，让其变粗并稍微变大
+.recharts-cartesian-axis-tick text,
+.recharts-legend-item text {
+    font-weight: bold;
+    font-size: 16px; // 调整这个值来改变字体大小
+}
+
+// 针对 Tooltip 中的文本，让其变粗并稍微变大
+.recharts-tooltip-item {
+    font-weight: bold;
+    font-size: 16px; // 调整这个值来改变字体大小
+}
