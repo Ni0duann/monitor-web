@@ -5,4 +5,7 @@ const page3='/Page3'
 
 const pageLIst = [page1, page2, page3]
 
-export { pageLIst, baseUrl }
+const osOptions = ['Windows', 'MacOS', 'Linux', 'Android', 'iOS', 'Unknown'];
+const browserOptions = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Internet Explorer', 'Unknown'];
+const deviceTypeOptions = ['Mobile', 'Desktop'];
+export { pageLIst, baseUrl, osOptions, browserOptions, deviceTypeOptions }
