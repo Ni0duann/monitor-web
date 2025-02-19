@@ -275,9 +275,23 @@ const Mychart = React.memo(() => {
     <div className={'container'}>
       <h2>流量数据</h2>
       {flowData && (
-        <p>
-          过去 7 天总的 PV 为 {flowData.pvTotal.toLocaleString()}，过去 7 天总的 UV 为 {flowData.uvTotal.toLocaleString()}
-        </p>
+        <table>
+          <thead>
+            <tr>
+              <th colSpan="2">过去一周</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>浏览量(PV)</td>
+              <td>访客数(UV)</td>
+            </tr>
+            <tr>
+              <td>{flowData.pvTotal.toLocaleString()}</td>
+              <td>{flowData.uvTotal.toLocaleString()}</td>
+            </tr>
+          </tbody>
+        </table>
       )}
       {/* 绘制总 PV 的折线图 */}
       <div ref={pvChartRef} style={{ width: '100%', height: '400px' }}></div>
