@@ -1,0 +1,158 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+    background: #b3b9cc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    h2 {
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 8px;
+        margin-bottom: 24px;
+        font-size: 1.8rem;
+    }
+
+    .filters {
+        margin: 24px 0;
+        background: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .ant-picker,
+        .ant-select,
+        button {
+            flex: 1 1 auto;
+            max-width: 200px;
+        }
+
+        .ant-select-selector,
+        .ant-picker {
+            border: 1px solid #3498db !important;
+            border-radius: 4px !important;
+        }
+
+        button {
+            background-color: #3498db;
+            border-color: #3498db;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background-color: #2980b9;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+            }
+        }
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr {
+            transition: background-color 0.2s ease;
+
+            &:nth-child(even) {
+                background-color: #f8f9fa;
+            }
+
+            &:hover {
+                background-color: #ecf0f1;
+            }
+        }
+
+        td {
+            color: #2c3e50;
+
+            &:nth-child(2),
+            &:nth-child(3) {
+                text-align: right;
+                font-family: monospace;
+            }
+        }
+    }
+
+    .countdown {
+        margin-top: 24px;
+        padding: 16px;
+        background: #fff9e6;
+        border-radius: 4px;
+        border-left: 4px solid #ffe58f;
+
+        p {
+            margin: 0;
+            color: #595959;
+            line-height: 1.6;
+
+            span {
+                font-weight: bold;
+                color: #f5222d;
+            }
+        }
+    }
+
+    // 响应式设计
+    @media (max-width: 768px) {
+        padding: 16px;
+
+        .filters {
+            flex-direction: column;
+
+            .ant-picker,
+            .ant-select,
+            button {
+                max-width: 100%;
+            }
+        }
+
+        table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+
+            th,
+            td {
+                min-width: 120px;
+            }
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        table {
+
+            th,
+            td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .countdown {
+            font-size: 0.9rem;
+        }
+    }
+}

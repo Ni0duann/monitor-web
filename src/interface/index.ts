@@ -32,6 +32,8 @@ export interface FlowDataParams {
     browser?: string;
     ip?: string;
     rangeTime?: number;
+    startTime?: string | null;
+    endTime?: string | null;
 }
 
 export interface DurationData {

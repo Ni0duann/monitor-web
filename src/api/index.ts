@@ -61,7 +61,7 @@ export async function pushFlowData(pagePath: string, addCount?: number) {
 
 // 6. 获取流量数据
 export async function getFlowData(params: FlowDataParams) {
-    const { pagePath, dataType, os = 'Unknown', device_type = 'desktop', browser = 'Unknown', ip = '::1', rangeTime = 7 } = params;
+    const { pagePath, dataType, os = 'Windows', device_type = 'Desktop', browser = 'Chrome', ip = '::1',rangeTime = 7 } = params;
     return fetchAPI<{ success: boolean; totalCount: number }>(
         '/api/get_flowData',
         'GET',
